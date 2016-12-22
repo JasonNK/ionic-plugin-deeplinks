@@ -76,14 +76,39 @@
 }
 
 - (CDVPluginResult *)createResult:(NSURL *)url {
-  NSDictionary* data = @{
-    @"url": [url absoluteString] ?: @"",
-    @"path": [url path] ?: @"",
-    @"queryString": [url query] ?: @"",
-    @"scheme": [url scheme] ?: @"",
-    @"host": [url host] ?: @"",
-    @"fragment": [url fragment] ?: @""
-  };
+    NSDictionary* data = nil;
+    
+    NSString *absUrl = url.absoluteString;
+    NSLog(@"url:%@",absUrl);
+    if([absUrl hasPrefix:@"wx"]){
+        NSLog(@"urlInside:%@",absUrl);
+        NSRange range = [url.absoluteString rangeOfString:@"code"];
+        NSRange range2 = [url.absoluteString rangeOfString:@"state"];
+        int length = range2.location - 1 - range.location - 5;
+        NSLog(@"url:%@",url.absoluteString);
+        int location = range.location;
+        NSString *string2 = [url.absoluteString substringWithRange:NSMakeRange(location+5, length)];
+        NSLog(@"url:%@",string2);
+        data = @{
+                 @"url": [@"zhtu://zhtu.net/wechat/" stringByAppendingString:string2],
+                 @"path": [@"wechat/" stringByAppendingString:string2],
+                 @"queryString": [url query] ?: @"",
+                 @"scheme": @"zhtu",
+                 @"host": @"zhtu.net",
+                 @"fragment": [url fragment] ?: @""
+                 };
+        
+    }else{
+        
+        data = @{
+                 @"url": [url absoluteString] ?: @"",
+                 @"path": [url path] ?: @"",
+                 @"queryString": [url query] ?: @"",
+                 @"scheme": [url scheme] ?: @"",
+                 @"host": [url host] ?: @"",
+                 @"fragment": [url fragment] ?: @""
+                 };
+    }
 
   CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
   [result setKeepCallbackAsBool:YES];
